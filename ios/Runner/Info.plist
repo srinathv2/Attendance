@@ -47,5 +47,16 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1094447536460-q4ph1ddcsn2iegukd0og8f2clb470d92</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSFileProviderDomainUsageDescription</key>
+	<string>Allow this app to access files on your device.</string>
 </dict>
 </plist>
