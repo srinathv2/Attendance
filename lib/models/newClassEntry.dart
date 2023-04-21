@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:attendance/screens/home.dart';
 
 class NewClassEntry {
-  late String classid, title, category, date;
+  late String classid, title, category, date, empname;
 
   var _formKey = GlobalKey<FormState>();
 
@@ -18,14 +18,14 @@ class NewClassEntry {
   var descriptionController = TextEditingController();
   var typeController = TextEditingController();
 
-  late String selectedItem;
+  String selectedItem = 'Fullday';
   List<String> attendanceTypes = ['Fullday', 'Forenoon', 'Afternoon'];
 
   var desc;
 
   var type;
-  NewClassEntry(
-      this.classid, this.title, this.category, this.date, this.desc, this.type);
+  NewClassEntry(this.classid, this.title, this.category, this.date, this.desc,
+      this.type, this.empname);
 
   Card createEntry(BuildContext context, List items) {
     return Card(
@@ -53,9 +53,11 @@ class NewClassEntry {
                                 titleController.text = this.title;
                                 categoryController.text = this.category;
                                 descriptionController.text = this.desc;
-                                typeController.text = this.type;
-                                // selectedItem = this.type;
-                                Navigator.of(context).pop();
+                                // typeController.text = this.type;
+                                selectedItem = this.type;
+                                // Navigator.of(context).pop();
+                                Navigator.of(context)
+                                    .popUntil(ModalRoute.withName('classes'));
                                 showDialog(
                                     context: context,
                                     builder: ((context) {
@@ -111,33 +113,41 @@ class NewClassEntry {
                                                     labelText: 'Description',
                                                   ),
                                                 ),
-                                                TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return 'Fullday or Forenoon or Afternoon';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: typeController,
-                                                  decoration: InputDecoration(
-                                                    labelText:
-                                                        'Attendance type',
-                                                  ),
-                                                ),
-                                                // DropdownButton(
-                                                //     hint: Text(
-                                                //         'select attendance type'),
-                                                //     value: selectedItem,
-                                                //     items: attendanceTypes
-                                                //         .map((e) =>
-                                                //             DropdownMenuItem(
-                                                //                 value: e,
-                                                //                 child: Text(e)))
-                                                //         .toList(),
-                                                //     onChanged: (value) {
-                                                //       selectedItem = value!;
-                                                //     }),
+                                                // TextFormField(
+                                                //   validator: (value) {
+                                                //     if (value == null ||
+                                                //         value.isEmpty) {
+                                                //       return 'Fullday or Forenoon or Afternoon';
+                                                //     }
+                                                //     return null;
+                                                //   },
+                                                //   controller: typeController,
+                                                //   decoration: InputDecoration(
+                                                //     labelText:
+                                                //         'Attendance type',
+                                                //   ),
+                                                // ),
+
+                                                DropdownButtonFormField<String>(
+                                                    value: this.selectedItem,
+                                                    hint: Text(
+                                                        'select attendance type'),
+                                                    items: attendanceTypes
+                                                        .map((e) {
+                                                          return DropdownMenuItem(
+                                                              value: e,
+                                                              child: Text(e));
+                                                        })
+                                                        .toSet()
+                                                        .toList(),
+                                                    onChanged: (value) {
+                                                      // Future.microtask(() {
+                                                      // setState(() {
+                                                      this.selectedItem =
+                                                          value.toString();
+                                                      // });
+                                                      // });
+                                                    }),
                                               ],
                                             ),
                                           ),
@@ -163,7 +173,7 @@ class NewClassEntry {
                                                             .text,
                                                     "Title":
                                                         titleController.text,
-                                                    "Type": typeController.text
+                                                    "Type": selectedItem
                                                   });
 
                                                   Navigator.of(context).pop();
@@ -212,12 +222,53 @@ class NewClassEntry {
                     builder: (context) => ClassPage(classEntry: this)),
               );
             },
-            child: Row(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(this.title),
-                Text(this.category),
-                Text(this.date)
+                Row(children: [
+                  Text(
+                    'Title',
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    width: 54,
+                  ),
+                  Text(this.title)
+                ]),
+                Row(children: [
+                  Text(
+                    'Category',
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(this.category)
+                ]),
+                Row(children: [
+                  Text(
+                    'Type',
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    width: 50,
+                  ),
+                  Text(this.type)
+                ]),
+                Row(children: [
+                  Text(
+                    'Date',
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    width: 50,
+                  ),
+                  Text(this.date)
+                ])
               ],
             )),
       ),

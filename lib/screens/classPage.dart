@@ -19,62 +19,129 @@ class ClassPage extends StatefulWidget {
 }
 
 class _ClassPageState extends State<ClassPage> {
+  final reg = RegExp(r'^[a-zA-Z0-9]{10}$|^[a-z]{10}$|^[A-Z]{10}$');
   var rollController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   List<Map<String, dynamic>> rollnumbers = [];
   var numberOfStudents;
-  getCount() async {
-    var x = await FirebaseFirestore.instance
-        .collection('students')
-        .where("classid",
-            isEqualTo: FirebaseFirestore.instance
-                .doc("classes/${widget.classEntry.classid}"))
-        .get();
-    setState(() {
-      numberOfStudents = x.docs.length;
-    });
-  }
+  // getCount() async {
+  //   var x = await FirebaseFirestore.instance
+  //       .collection('students')
+  //       .where("classid",
+  //           isEqualTo: FirebaseFirestore.instance
+  //               .doc("classes/${widget.classEntry.classid}"))
+  //       .get();
+  //   setState(() {
+  //     print('srinath');
+  //     numberOfStudents = x.docs.length;
+  //   });
+  // }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getCount();
   }
 
   String barcode = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.classEntry.title), actions: [
-        // ElevatedButton.icon(
-        //     onPressed: () {
-        //       scanBarcode();
-        //       // while(true){
-        //       //   if(this.barcode!='-1' && this.barcode!=''){
-        //       //     break;
-        //       //   }
-        //       // scanBarcode();
+      appBar: AppBar(
+          centerTitle: true,
+          title: Text(widget.classEntry.title),
+          actions: [
+            // ElevatedButton.icon(
+            //     onPressed: () {
+            //       scanBarcode();
+            //       // while(true){
+            //       //   if(this.barcode!='-1' && this.barcode!=''){
+            //       //     break;
+            //       //   }
+            //       // scanBarcode();
 
-        //       // }
-        //       if (this.barcode == '-1' || this.barcode == null) {
-        //         scanBarcode();
-        //       }
-        //       setState(() {
-        //         FirebaseFirestore.instance.collection("students").doc().set({
-        //           "classid": FirebaseFirestore.instance
-        //               .doc("classes/${widget.classEntry.classid}"),
-        //           "faculty": "santhosh",
-        //           "rollnumber": this.barcode,
-        //           "timestamp": DateFormat('yyyy-MM-dd – kk:mm')
-        //               .format(Timestamp.now().toDate())
-        //         });
-        //       });
-        //     },
-        //     icon: Icon(Icons.qr_code_scanner),
-        //     label: Text('SCAN'))
-      ]),
-      body: StreamBuilder<Object>(
+            //       // }
+            //       if (this.barcode == '-1' || this.barcode == null) {
+            //         scanBarcode();
+            //       }
+            //       setState(() {
+            //         FirebaseFirestore.instance.collection("students").doc().set({
+            //           "classid": FirebaseFirestore.instance
+            //               .doc("classes/${widget.classEntry.classid}"),
+            //           "faculty": "santhosh",
+            //           "rollnumber": this.barcode,
+            //           "timestamp": DateFormat('yyyy-MM-dd – kk:mm')
+            //               .format(Timestamp.now().toDate())
+            //         });
+            //       });
+            //     },
+            //     icon: Icon(Icons.qr_code_scanner),
+            //     label: Text('SCAN'))
+            ElevatedButton(
+                child: Row(
+                  children: [
+                    Icon(Icons.qr_code_scanner),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text('SCAN'),
+                  ],
+                ),
+                onPressed: () async {
+                  await scanBarcodeNormal();
+                  // while(true){
+                  //   if(this.barcode!='-1' && this.barcode!=''){
+                  //     break;
+                  //   }
+                  // scanBarcode();
+
+                  // }
+                  QuerySnapshot<Map<String, dynamic>>
+                      data = await FirebaseFirestore
+                          .instance
+                          .collection('students')
+                          .where(
+                              "classid",
+                              isEqualTo: FirebaseFirestore
+                                  .instance
+                                  .doc("classes/${widget.classEntry.classid}"))
+                          .where('rollnumber',
+                              isEqualTo: this.barcode.toUpperCase())
+                          .get();
+                  if (data.docs.length == 0) {
+                    if (this.barcode != "-1" && this.barcode != "") {
+                      setState(() {
+                        FirebaseFirestore.instance
+                            .collection("students")
+                            .doc()
+                            .set({
+                          "classid": FirebaseFirestore.instance
+                              .doc("classes/${widget.classEntry.classid}"),
+                          "faculty": widget.classEntry.empname,
+                          "rollnumber": this.barcode.toUpperCase(),
+                          "timestamp": DateFormat('dd-MM-yyyy')
+                              .format(Timestamp.now().toDate())
+                        });
+                      });
+                    } else {
+                      SnackBar(
+                        content: Text('Go Back And Try Again'),
+                      );
+                    }
+                  } else {
+                    Navigator.of(context).pop();
+                    showDialog(
+                        context: context,
+                        builder: ((context) {
+                          return AlertDialog(
+                            content: Text(
+                                '${this.barcode.toUpperCase()} already attendance taken'),
+                          );
+                        }));
+                  }
+                }),
+          ]),
+      body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('students')
               .where("classid",
@@ -87,30 +154,70 @@ class _ClassPageState extends State<ClassPage> {
                 child: CircularProgressIndicator(),
               );
             }
-            getCount();
+            numberOfStudents = snapshot.data!.docs.length;
             return Padding(
               padding: const EdgeInsets.only(top: 200),
-              child: ListView(
+              child: Column(
                 children: [
                   Card(
                     child: ListTile(
-                      leading: Icon(Icons.class_),
+                      leading: Padding(
+                        padding: const EdgeInsets.only(left: 12, right: 18),
+                        child: Icon(Icons.class_),
+                      ),
                       title: Text('Category'),
                       trailing: Text(widget.classEntry.category),
                     ),
                   ),
                   Card(
                     child: ListTile(
-                      leading: Icon(Icons.calendar_month),
+                      leading: Padding(
+                        padding: const EdgeInsets.only(left: 12, right: 18),
+                        child: Icon(Icons.calendar_month),
+                      ),
                       title: Text('Date'),
                       trailing: Text(widget.classEntry.date),
                     ),
                   ),
                   Card(
-                    child: ListTile(
-                      leading: Icon(Icons.people),
-                      title: Text('Students present'),
-                      trailing: Text(numberOfStudents.toString()),
+                    child: ExpansionTile(
+                      children: [
+                        Text(
+                          widget.classEntry.desc,
+                        )
+                      ],
+                      leading: Padding(
+                        padding: const EdgeInsets.only(left: 12, right: 18),
+                        child: Icon(Icons.description),
+                      ),
+                      title: Text(
+                        'Description',
+                      ),
+                      // trailing: Text(
+                      //   widget.classEntry.desc,
+                      //   overflow: TextOverflow.ellipsis,
+                      //   softWrap: true,
+                      //   maxLines: 30,
+                      // ),
+                    ),
+                  ),
+                  Card(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ViewAttendence(
+                                    ClassTitle: widget.classEntry.title,
+                                    ClassId: widget.classEntry.classid)));
+                      },
+                      child: ListTile(
+                        leading: Icon(Icons.people),
+                        title: Text('Students present'),
+                        trailing: Text(numberOfStudents.toString()),
+                      ),
                     ),
                   ),
                 ],
@@ -151,38 +258,6 @@ class _ClassPageState extends State<ClassPage> {
         child: Icon(Icons.add),
         speedDialChildren: [
           SpeedDialChild(
-              child: Icon(Icons.qr_code_scanner),
-              label: 'Scan',
-              onPressed: () async {
-                await scanBarcodeNormal();
-                // while(true){
-                //   if(this.barcode!='-1' && this.barcode!=''){
-                //     break;
-                //   }
-                // scanBarcode();
-
-                // }
-                if (this.barcode != "-1" && this.barcode != "") {
-                  setState(() {
-                    FirebaseFirestore.instance
-                        .collection("students")
-                        .doc()
-                        .set({
-                      "classid": FirebaseFirestore.instance
-                          .doc("classes/${widget.classEntry.classid}"),
-                      "faculty": "santhosh",
-                      "rollnumber": this.barcode,
-                      "timestamp": DateFormat('yyyy-MM-dd – kk:mm')
-                          .format(Timestamp.now().toDate())
-                    });
-                  });
-                } else {
-                  SnackBar(
-                    content: Text('Go Back And Try Again'),
-                  );
-                }
-              }),
-          SpeedDialChild(
             child: Icon(Icons.person_add),
             label: 'Manual Attendance',
             onPressed: () {
@@ -209,31 +284,60 @@ class _ClassPageState extends State<ClassPage> {
                                   actions: [
                                     TextButton(
                                         child: Text("Submit"),
-                                        onPressed: () {
-                                          if (_formKey.currentState!
-                                              .validate()) {
-                                            _formKey.currentState!.save();
-                                            setState(() {
-                                              FirebaseFirestore.instance
-                                                  .collection("students")
-                                                  .doc()
-                                                  .set({
-                                                "classid": FirebaseFirestore
-                                                    .instance
-                                                    .doc(
-                                                        "classes/${widget.classEntry.classid}"),
-                                                "faculty": "santhosh",
-                                                "rollnumber":
-                                                    rollController.text,
-                                                "timestamp": DateFormat(
-                                                        'yyyy-MM-dd – kk:mm')
-                                                    .format(Timestamp.now()
-                                                        .toDate())
+                                        onPressed: () async {
+                                          QuerySnapshot<Map<String, dynamic>>
+                                              data = await FirebaseFirestore
+                                                  .instance
+                                                  .collection('students')
+                                                  .where("classid",
+                                                      isEqualTo: FirebaseFirestore
+                                                          .instance
+                                                          .doc(
+                                                              "classes/${widget.classEntry.classid}"))
+                                                  .where('rollnumber',
+                                                      isEqualTo: rollController
+                                                          .text
+                                                          .toUpperCase())
+                                                  .get();
+                                          if (data.docs.length == 0) {
+                                            if (_formKey.currentState!
+                                                .validate()) {
+                                              _formKey.currentState!.save();
+                                              setState(() {
+                                                FirebaseFirestore.instance
+                                                    .collection("students")
+                                                    .doc()
+                                                    .set({
+                                                  "classid": FirebaseFirestore
+                                                      .instance
+                                                      .doc(
+                                                          "classes/${widget.classEntry.classid}"),
+                                                  "faculty":
+                                                      widget.classEntry.empname,
+                                                  "rollnumber": rollController
+                                                      .text
+                                                      .toUpperCase(),
+                                                  "timestamp":
+                                                      DateFormat('dd-MM-yyyy')
+                                                          .format(
+                                                              Timestamp.now()
+                                                                  .toDate())
+                                                });
+                                                Navigator.of(context).pop();
                                               });
-                                              Navigator.of(context).pop();
-                                            });
+                                              _formKey.currentState!.reset();
+                                            }
+                                          } else {
+                                            Navigator.of(context).pop();
+                                            showDialog(
+                                                context: context,
+                                                builder: ((context) {
+                                                  return AlertDialog(
+                                                    content: Text(
+                                                        '${rollController.text.toUpperCase()} already attendance taken'),
+                                                  );
+                                                }));
                                           }
-                                          _formKey.currentState!.reset();
                                         })
                                   ],
                                   scrollable: true,
@@ -248,8 +352,9 @@ class _ClassPageState extends State<ClassPage> {
                                         children: [
                                           TextFormField(
                                             validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
+                                              if (value!.isEmpty) {
+                                                return 'Rollnumber is required';
+                                              } else if (!reg.hasMatch(value)) {
                                                 return 'Please enter valid rollnumber';
                                               }
                                               return null;

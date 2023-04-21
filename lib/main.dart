@@ -1,3 +1,5 @@
+import 'package:attendance/screens/adminScreen.dart';
+import 'package:attendance/screens/employees.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:attendance/screens/classPage.dart';
 import 'package:attendance/screens/home.dart';
@@ -9,10 +11,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MaterialApp(
-    // theme: ThemeData.light(),
-    // darkTheme: ThemeData.dark(),
+    debugShowCheckedModeBanner: false,
     home: LoginScreen(),
-    routes: {'classes': (context) => const Home()},
+    routes: {
+      'classes': (context) => const Home(),
+      'adminScreen': (context) => AdminScreen(),
+      'employees': (context) => Employees()
+    },
   ));
 }
 
@@ -21,31 +26,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text('ksjfsdf'),
-    );
-    // return Center(
-    //   child: SizedBox(
-    //     width: 200,
-    //     height: 50,
-    //     child: ElevatedButton(
-    //       child: Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    //         children: [
-    //           FaIcon(FontAwesomeIcons.google),
-    //           Text('Login with google')
-    //         ],
-    //       ),
-    //       onPressed: (() async {
-    //         try {
-    //           await FireBaseServices().siginWithGoogle();
-    //           Navigator.pushNamed(context, 'home');
-    //         } catch (e) {
-    //           throw e;
-    //         }
-    //       }),
-    //     ),
-    //   ),
-    // );
+    return Container();
   }
 }

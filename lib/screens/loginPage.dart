@@ -191,72 +191,102 @@
 //   }
 // }
 import 'package:attendance/screens/home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-const users = const {
-  'srinath@gmail.com': '12345',
-};
+// const users = const {
+//   'srinath@gmail.com': '12345',
+// };
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  late UserCredential userCredential;
   Duration get loginTime => Duration(milliseconds: 2250);
 
   Future<String?> _authUser(LoginData data) {
-    debugPrint('Name: ${data.name}, Password: ${data.password}');
-    return Future.delayed(loginTime).then((_) {
-      if (!users.containsKey(data.name)) {
-        return 'User not exists';
+    return Future.delayed(loginTime).then((_) async {
+      try {
+        userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: data.name,
+          password: data.password,
+        );
+        await FirebaseFirestore.instance
+            .collection('employees')
+            .where('email', isEqualTo: data.name)
+            .where('status', isEqualTo: 'active')
+            .get()
+            .then((snapshot) {
+          if (snapshot.docs.isNotEmpty) {
+            snapshot.docs.forEach((element) {
+              if (element.exists && element['type'] == 'admin') {
+                Navigator.pushReplacementNamed(context, 'adminScreen');
+              } else if (element.exists && element['type'] == 'faculty') {
+                Navigator.pushReplacementNamed(context, 'classes');
+              }
+            });
+            
+          } else {
+            throw 'No user found for that email.';
+          }
+        });
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          return 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          return 'Wrong password provided for that user.';
+        }
+      }catch(e){
+        return e.toString();
       }
-      if (users[data.name] != data.password) {
-        return 'Password does not match';
-      }
-      return null;
     });
+
+    // debugPrint('Name: ${data.name}, Password: ${data.password}');
+    // return Future.delayed(loginTime).then((_) {
+    //   if (!users.containsKey(data.name)) {
+    //     return 'User not exists';
+    //   }
+    //   if (users[data.name] != data.password) {
+    //     return 'Password does not match';
+    //   }
+    //   return null;
+    // });
   }
 
-  Future<String?> _signupUser(SignupData data) {
-    debugPrint('Signup Name: ${data.name}, Password: ${data.password}');
-    return Future.delayed(loginTime).then((_) {
-      return null;
-    });
-  }
-
-  // Future<String> _recoverPassword(String name) {
-  //   debugPrint('Name: $name');
-  //   return Future.delayed(loginTime).then((_) {
-  //     if (!users.containsKey(name)) {
-  //       return 'User not exists';
-  //     }
-  //     // return null;
-  //   });
-  // }
-
+  // Future<String?> _signupUser(SignupData data) {
   @override
   Widget build(BuildContext context) {
     return FlutterLogin(
-      title: 'Attendance',
-      // logo: AssetImage('assets/images/ecorp-lightblue.png'),
-      onLogin: _authUser,
-      onSignup: _signupUser,
+      hideForgotPasswordButton: true,
 
-      loginProviders: <LoginProvider>[
-        LoginProvider(
-          icon: FontAwesomeIcons.google,
-          label: 'Google',
-          callback: () async {
-            debugPrint('start google sign in');
-            await Future.delayed(loginTime);
-            debugPrint('stop google sign in');
-            return null;
-          },
-        ),
-      ],
-      onSubmitAnimationCompleted: () {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => Home(),
-        ));
-      },
+      title: 'Attendance',
+      logo: AssetImage('assets/images/svcolleges.png'),
+      onLogin: _authUser,
+      // onSignup: _signupUser,
+
+      // loginProviders: <LoginProvider>[
+      //   LoginProvider(
+      //     icon: FontAwesomeIcons.google,
+      //     label: 'Google',
+      //     callback: () async {
+      //       debugPrint('start google sign in');
+      //       await Future.delayed(loginTime);
+      //       debugPrint('stop google sign in');
+      //       return null;
+      //     },
+      //   ),
+      // ],
+      // onSubmitAnimationCompleted: () {
+      //   Navigator.of(context).pushReplacement(MaterialPageRoute(
+      //     builder: (context) => Home(),
+      //   ));
+      // },
       onRecoverPassword: ((p0) {}),
     );
   }
