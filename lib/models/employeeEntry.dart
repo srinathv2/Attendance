@@ -27,8 +27,8 @@ class EmployeeEntry {
   final passwordValidator = RegExp(
       r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
 
-  EmployeeEntry(this.docid, this.email, this.employeeid, this.name,
-      this.password, this.status, this.type, this.dept, this.userCreds);
+  EmployeeEntry(this.docid, this.email, this.employeeid, this.name, this.status,
+      this.type, this.dept, this.userCreds);
 
   Card createEntry(BuildContext context, List items) {
     return Card(
@@ -55,7 +55,7 @@ class EmployeeEntry {
                               onPressed: (() {
                                 emailController.text = this.email;
                                 nameController.text = this.name;
-                                passwordController.text = this.password;
+                                // passwordController.text = this.password;
                                 selectedType = this.type;
                                 selectedStatus = this.status;
                                 deptController.text = this.dept;
@@ -122,22 +122,22 @@ class EmployeeEntry {
                                                   ),
                                                 ),
 
-                                                TextFormField(
-                                                  validator: (value) {
-                                                    if (value!.isEmpty) {
-                                                      return 'Password is required';
-                                                    } else if (!passwordValidator
-                                                        .hasMatch(value)) {
-                                                      return 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@\$!%*?&)';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller:
-                                                      passwordController,
-                                                  decoration: InputDecoration(
-                                                      labelText: 'Password',
-                                                      errorMaxLines: 5),
-                                                ),
+                                                // TextFormField(
+                                                //   validator: (value) {
+                                                //     if (value!.isEmpty) {
+                                                //       return 'Password is required';
+                                                //     } else if (!passwordValidator
+                                                //         .hasMatch(value)) {
+                                                //       return 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@\$!%*?&)';
+                                                //     }
+                                                //     return null;
+                                                //   },
+                                                //   controller:
+                                                //       passwordController,
+                                                //   decoration: InputDecoration(
+                                                //       labelText: 'Password',
+                                                //       errorMaxLines: 5),
+                                                // ),
                                                 DropdownButtonFormField<String>(
                                                     value: this.selectedStatus,
                                                     hint: Text(
@@ -218,10 +218,10 @@ class EmployeeEntry {
                                                       .update({
                                                     "docid": this.docid,
                                                     "name": nameController.text,
-                                                    "password":
-                                                        passwordController.text,
                                                     "type": selectedType,
-                                                    "status": selectedStatus
+                                                    "status": selectedStatus,
+                                                    "dept":
+                                                        this.deptController.text
                                                   });
 
                                                   Navigator.of(context).pop();

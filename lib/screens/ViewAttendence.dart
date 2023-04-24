@@ -71,6 +71,7 @@ class _ViewAttendenceState extends State<ViewAttendence> {
                   .where("classid",
                       isEqualTo: FirebaseFirestore.instance
                           .doc("classes/${widget.ClassId}"))
+                  .orderBy('timestamp')
                   .get();
 
               // Create Excel workbook and sheet
@@ -134,6 +135,7 @@ class _ViewAttendenceState extends State<ViewAttendence> {
               .where("classid",
                   isEqualTo: FirebaseFirestore.instance
                       .doc("classes/${widget.ClassId}"))
+              .orderBy('timestamp')
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -148,53 +150,71 @@ class _ViewAttendenceState extends State<ViewAttendence> {
             });
             attendance = templist;
             return ListView.builder(
-                itemCount: attendance.length + 1,
+                itemCount: attendance.length,
                 itemBuilder: ((context, index) {
-                  if (index == 0) {
-                    return SizedBox(
-                      height: 40,
-                      child: Card(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
+                  return Card(
+                    child: TextButton(
+                      onPressed: (() {}),
+                      style: ButtonStyle(splashFactory: NoSplash.splashFactory),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(children: [
                             Text(
                               'Rollnumber',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
                             ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            Text(this.attendance[index]["rollnumber"])
+                          ]),
+                          Row(children: [
                             Text(
                               'Faculty',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
                             ),
+                            SizedBox(
+                              width: 50,
+                            ),
+                            Text(this.attendance[index]["faculty"])
+                          ]),
+                          Row(children: [
                             Text(
                               'Attended on',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            )
-                          ],
-                        ),
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Text(this.attendance[index]["timestamp"])
+                          ]),
+                        ],
                       ),
-                    );
-                  }
-                  return SizedBox(
-                    height: 60,
-                    child: Card(
-                        child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(this.attendance[index - 1]["rollnumber"],
-                            style: TextStyle(fontSize: 15)),
-                        Flexible(
-                          child: Text(
-                            this.attendance[index - 1]["faculty"],
-                            style: TextStyle(fontSize: 13),
-                            softWrap: false,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 3,
-                          ),
-                        ),
-                        Text(this.attendance[index - 1]["timestamp"],
-                            style: TextStyle(fontSize: 15))
-                      ],
-                    )),
+                    ),
+                    // child: Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     Text(
+                    //       'Rollnumber',
+                    //       style: TextStyle(fontWeight: FontWeight.bold),
+                    //     ),
+                    //     Text(
+                    //       'Faculty',
+                    //       style: TextStyle(fontWeight: FontWeight.bold),
+                    //     ),
+                    //     Text(
+                    //       'Attended on',
+                    //       style: TextStyle(fontWeight: FontWeight.bold),
+                    //     )
+                    //   ],
+                    // ),
                   );
                 }));
           }),
@@ -208,6 +228,7 @@ class _ViewAttendenceState extends State<ViewAttendence> {
               .where("classid",
                   isEqualTo: FirebaseFirestore.instance
                       .doc("classes/${widget.ClassId}"))
+              .orderBy('timestamp')
               .get();
 
           // Create Excel workbook and sheet

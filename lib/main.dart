@@ -14,6 +14,7 @@ void main() async {
     debugShowCheckedModeBanner: false,
     home: LoginScreen(),
     routes: {
+      'login': (context) => LoginScreen(),
       'classes': (context) => const Home(),
       'adminScreen': (context) => AdminScreen(),
       'employees': (context) => Employees()

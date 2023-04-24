@@ -231,9 +231,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 Navigator.pushReplacementNamed(context, 'classes');
               }
             });
-            
           } else {
-            throw 'No user found for that email.';
+            throw 'No user found with this email.';
           }
         });
       } on FirebaseAuthException catch (e) {
@@ -242,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
         } else if (e.code == 'wrong-password') {
           return 'Wrong password provided for that user.';
         }
-      }catch(e){
+      } catch (e) {
         return e.toString();
       }
     });
@@ -263,7 +262,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return FlutterLogin(
-      hideForgotPasswordButton: true,
+      hideForgotPasswordButton: false,
 
       title: 'Attendance',
       logo: AssetImage('assets/images/svcolleges.png'),
@@ -287,7 +286,16 @@ class _LoginScreenState extends State<LoginScreen> {
       //     builder: (context) => Home(),
       //   ));
       // },
-      onRecoverPassword: ((p0) {}),
+
+      onRecoverPassword: ((email) async {
+        try {
+          await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'user-not-found') {
+            return 'No user found with this email.';
+          }
+        }
+      }),
     );
   }
 }

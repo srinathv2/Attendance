@@ -47,6 +47,7 @@ class _ClassPageState extends State<ClassPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
           centerTitle: true,
           title: Text(widget.classEntry.title),
@@ -119,7 +120,7 @@ class _ClassPageState extends State<ClassPage> {
                               .doc("classes/${widget.classEntry.classid}"),
                           "faculty": widget.classEntry.empname,
                           "rollnumber": this.barcode.toUpperCase(),
-                          "timestamp": DateFormat('dd-MM-yyyy')
+                          "timestamp": DateFormat('dd-MM-yyyy – kk:mm')
                               .format(Timestamp.now().toDate())
                         });
                       });
@@ -130,6 +131,12 @@ class _ClassPageState extends State<ClassPage> {
                     }
                   } else {
                     Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ClassPage(classEntry: widget.classEntry)),
+                    );
                     showDialog(
                         context: context,
                         builder: ((context) {
@@ -167,6 +174,16 @@ class _ClassPageState extends State<ClassPage> {
                       ),
                       title: Text('Category'),
                       trailing: Text(widget.classEntry.category),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Padding(
+                        padding: const EdgeInsets.only(left: 12, right: 18),
+                        child: Icon(Icons.access_time),
+                      ),
+                      title: Text('Type'),
+                      trailing: Text(widget.classEntry.type),
                     ),
                   ),
                   Card(
@@ -285,6 +302,8 @@ class _ClassPageState extends State<ClassPage> {
                                     TextButton(
                                         child: Text("Submit"),
                                         onPressed: () async {
+                                          var rolltext =
+                                              rollController.text.toUpperCase();
                                           QuerySnapshot<Map<String, dynamic>>
                                               data = await FirebaseFirestore
                                                   .instance
@@ -295,9 +314,7 @@ class _ClassPageState extends State<ClassPage> {
                                                           .doc(
                                                               "classes/${widget.classEntry.classid}"))
                                                   .where('rollnumber',
-                                                      isEqualTo: rollController
-                                                          .text
-                                                          .toUpperCase())
+                                                      isEqualTo: rolltext)
                                                   .get();
                                           if (data.docs.length == 0) {
                                             if (_formKey.currentState!
@@ -314,14 +331,11 @@ class _ClassPageState extends State<ClassPage> {
                                                           "classes/${widget.classEntry.classid}"),
                                                   "faculty":
                                                       widget.classEntry.empname,
-                                                  "rollnumber": rollController
-                                                      .text
-                                                      .toUpperCase(),
-                                                  "timestamp":
-                                                      DateFormat('dd-MM-yyyy')
-                                                          .format(
-                                                              Timestamp.now()
-                                                                  .toDate())
+                                                  "rollnumber": rolltext,
+                                                  "timestamp": DateFormat(
+                                                          'dd-MM-yyyy – kk:mm')
+                                                      .format(Timestamp.now()
+                                                          .toDate())
                                                 });
                                                 Navigator.of(context).pop();
                                               });
@@ -334,9 +348,10 @@ class _ClassPageState extends State<ClassPage> {
                                                 builder: ((context) {
                                                   return AlertDialog(
                                                     content: Text(
-                                                        '${rollController.text.toUpperCase()} already attendance taken'),
+                                                        '${rolltext} already attendance taken'),
                                                   );
                                                 }));
+                                            _formKey.currentState!.reset();
                                           }
                                         })
                                   ],
