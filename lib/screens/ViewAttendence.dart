@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:attendance/models/newClassEntry.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +13,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ViewAttendence extends StatefulWidget {
-  final String ClassTitle, ClassId;
-  const ViewAttendence(
-      {super.key, required this.ClassTitle, required this.ClassId});
+  final NewClassEntry classEntry;
+  const ViewAttendence({super.key, required this.classEntry});
 
   @override
   State<ViewAttendence> createState() => _ViewAttendenceState();
@@ -39,8 +39,8 @@ class _ViewAttendenceState extends State<ViewAttendence> {
     var data = await FirebaseFirestore.instance
         .collection("students")
         .where("classid",
-            isEqualTo:
-                FirebaseFirestore.instance.doc("classes/${widget.ClassId}"))
+            isEqualTo: FirebaseFirestore.instance
+                .doc("classes/${widget.classEntry.classid}"))
         .get();
     data.docs.forEach((element) {
       templist.add(element.data());
@@ -70,18 +70,30 @@ class _ViewAttendenceState extends State<ViewAttendence> {
                   .collection("students")
                   .where("classid",
                       isEqualTo: FirebaseFirestore.instance
-                          .doc("classes/${widget.ClassId}"))
+                          .doc("classes/${widget.classEntry.classid}"))
                   .orderBy('timestamp')
                   .get();
 
               // Create Excel workbook and sheet
               final excel = Excel.createExcel();
-              final sheet = excel[widget.ClassTitle];
+              final sheet = excel[widget.classEntry.title];
 
               // Write data to Excel sheet
-              sheet.appendRow(['rollnumber', 'faculty', 'timestamp']);
+              sheet.appendRow([
+                'Class Name',
+                'Category',
+                'Description',
+                'Created on',
+                'Rollnumber',
+                'Faculty',
+                'Timestamp'
+              ]);
               for (final document in querySnapshot.docs) {
                 sheet.appendRow([
+                  widget.classEntry.title,
+                  widget.classEntry.category,
+                  widget.classEntry.desc,
+                  widget.classEntry.date,
                   document['rollnumber'],
                   document['faculty'],
                   document['timestamp']
@@ -103,7 +115,7 @@ class _ViewAttendenceState extends State<ViewAttendence> {
                   break;
                 }
               }
-              newPath += '/Attendance/${widget.ClassTitle}.xlsx';
+              newPath += '/Attendance/${widget.classEntry.title}.xlsx';
               directory = Directory(newPath);
               // final filePath = directory.
 
@@ -134,7 +146,7 @@ class _ViewAttendenceState extends State<ViewAttendence> {
               .collection("students")
               .where("classid",
                   isEqualTo: FirebaseFirestore.instance
-                      .doc("classes/${widget.ClassId}"))
+                      .doc("classes/${widget.classEntry.classid}"))
               .orderBy('timestamp')
               .snapshots(),
           builder: (context, snapshot) {
@@ -227,18 +239,30 @@ class _ViewAttendenceState extends State<ViewAttendence> {
               .collection("students")
               .where("classid",
                   isEqualTo: FirebaseFirestore.instance
-                      .doc("classes/${widget.ClassId}"))
+                      .doc("classes/${widget.classEntry.classid}"))
               .orderBy('timestamp')
               .get();
 
           // Create Excel workbook and sheet
           final excel = Excel.createExcel();
-          final sheet = excel[widget.ClassTitle];
+          final sheet = excel[widget.classEntry.title];
 
           // Write data to Excel sheet
-          sheet.appendRow(['rollnumber', 'faculty', 'timestamp']);
+          sheet.appendRow([
+            'Class Name',
+            'Category',
+            'Description',
+            'Created on',
+            'Rollnumber',
+            'Faculty',
+            'Timestamp'
+          ]);
           for (final document in querySnapshot.docs) {
             sheet.appendRow([
+              widget.classEntry.title,
+              widget.classEntry.category,
+              widget.classEntry.desc,
+              widget.classEntry.date,
               document['rollnumber'],
               document['faculty'],
               document['timestamp']
@@ -260,7 +284,7 @@ class _ViewAttendenceState extends State<ViewAttendence> {
               break;
             }
           }
-          newPath += '/Attendance/${widget.ClassTitle}.xlsx';
+          newPath += '/Attendance/${widget.classEntry.title}.xlsx';
           directory = Directory(newPath);
           // final filePath = directory.
 

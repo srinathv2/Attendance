@@ -57,7 +57,7 @@ class NewClassEntry {
                                 selectedItem = this.type;
                                 // Navigator.of(context).pop();
                                 Navigator.of(context)
-                                    .popUntil(ModalRoute.withName('classes'));
+                                    .popUntil(ModalRoute.withName('/classes'));
                                 showDialog(
                                     context: context,
                                     builder: ((context) {
@@ -68,15 +68,15 @@ class NewClassEntry {
                                           padding: const EdgeInsets.all(8.0),
                                           child: Form(
                                             key: _formKey,
-                                            autovalidateMode: AutovalidateMode
-                                                .onUserInteraction,
+                                            autovalidateMode:
+                                                AutovalidateMode.always,
                                             child: Column(
                                               children: [
                                                 TextFormField(
                                                   validator: (value) {
                                                     if (value == null ||
                                                         value.isEmpty) {
-                                                      return 'Please enter some title';
+                                                      return 'Please enter title';
                                                     }
                                                     return null;
                                                   },
@@ -89,7 +89,7 @@ class NewClassEntry {
                                                   validator: (value) {
                                                     if (value == null ||
                                                         value.isEmpty) {
-                                                      return 'Please enter some Category';
+                                                      return 'Please enter Category';
                                                     }
                                                     return null;
                                                   },
@@ -103,7 +103,7 @@ class NewClassEntry {
                                                   validator: (value) {
                                                     if (value == null ||
                                                         value.isEmpty) {
-                                                      return 'Please enter some Description';
+                                                      return 'Please enter Description';
                                                     }
                                                     return null;
                                                   },

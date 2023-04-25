@@ -66,13 +66,13 @@ class EmployeeEntry {
                                     builder: ((context) {
                                       return AlertDialog(
                                         scrollable: true,
-                                        title: Text('Class info'),
+                                        title: Text('Employee info'),
                                         content: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Form(
                                             key: _formKey,
-                                            autovalidateMode: AutovalidateMode
-                                                .onUserInteraction,
+                                            autovalidateMode:
+                                                AutovalidateMode.always,
                                             child: Column(
                                               children: [
                                                 TextFormField(
@@ -105,22 +105,22 @@ class EmployeeEntry {
                                                     labelText: 'Department',
                                                   ),
                                                 ),
-                                                TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return 'Email required';
-                                                    } else if (!EmailValidator
-                                                        .validate(value)) {
-                                                      return 'Please enter valid email';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: emailController,
-                                                  decoration: InputDecoration(
-                                                    labelText: 'Email',
-                                                  ),
-                                                ),
+                                                // TextFormField(
+                                                //   validator: (value) {
+                                                //     if (value == null ||
+                                                //         value.isEmpty) {
+                                                //       return 'Email required';
+                                                //     } else if (!EmailValidator
+                                                //         .validate(value)) {
+                                                //       return 'Please enter valid email';
+                                                //     }
+                                                //     return null;
+                                                //   },
+                                                //   controller: emailController,
+                                                //   decoration: InputDecoration(
+                                                //     labelText: 'Email',
+                                                //   ),
+                                                // ),
 
                                                 // TextFormField(
                                                 //   validator: (value) {
@@ -216,7 +216,7 @@ class EmployeeEntry {
                                                       .collection("employees")
                                                       .doc(this.docid)
                                                       .update({
-                                                    "docid": this.docid,
+                                                    // "docid": this.docid,
                                                     "name": nameController.text,
                                                     "type": selectedType,
                                                     "status": selectedStatus,
@@ -308,7 +308,14 @@ class EmployeeEntry {
                   SizedBox(
                     width: 20,
                   ),
-                  Text(this.name)
+                  Expanded(
+                    child: Text(
+                      this.name,
+                      // softWrap: false,
+                      maxLines: 3,
+                      // overflow: TextOverflow.ellipsis,
+                    ),
+                  )
                 ]),
                 Row(children: [
                   Text(
@@ -330,7 +337,9 @@ class EmployeeEntry {
                   SizedBox(
                     width: 20,
                   ),
-                  Text(this.email)
+                  Text(
+                    this.email,
+                  )
                 ])
               ],
             )),

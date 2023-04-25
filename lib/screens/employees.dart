@@ -15,6 +15,7 @@ class Employees extends StatefulWidget {
 }
 
 class _EmployeesState extends State<Employees> {
+  int currentIndex = 0;
   final _formKey = GlobalKey<FormState>();
   var filter = 'active';
   UserCredential? userCred;
@@ -90,26 +91,29 @@ class _EmployeesState extends State<Employees> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Employees'),
+        title: const Text(
+          'Employees',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
         centerTitle: true,
       ),
-      bottomNavigationBar: GNav(
-          backgroundColor: Color.fromARGB(255, 36, 149, 242),
-          color: Colors.black,
-          tabs: [
-            GButton(
-              text: 'Active Employees',
-              icon: Icons.circle,
-              onPressed: () {
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: currentIndex,
+        onTap: (value) {
+          setState(() {
+            currentIndex = value;
+          });
+          switch (value) {
+            case 0:
+              {
                 setState(() {
                   filter = 'active';
                 });
-              },
-            ),
-            GButton(
-              text: 'Add Employees',
-              icon: Icons.add,
-              onPressed: () {
+                break;
+              }
+            case 1:
+              {
                 showDialog(
                   barrierDismissible: false,
                   context: context,
@@ -137,8 +141,8 @@ class _EmployeesState extends State<Employees> {
                                           padding: const EdgeInsets.all(8.0),
                                           child: Form(
                                             key: _formKey,
-                                            autovalidateMode: AutovalidateMode
-                                                .onUserInteraction,
+                                            autovalidateMode:
+                                                AutovalidateMode.always,
                                             child: Column(
                                               children: [
                                                 TextFormField(
@@ -416,7 +420,7 @@ class _EmployeesState extends State<Employees> {
                                                     Navigator.of(context)
                                                         .popUntil(
                                                             ModalRoute.withName(
-                                                                'employees'));
+                                                                '/employees'));
                                                   } else if (x == -1) {
                                                     ScaffoldMessenger.of(
                                                             context)
@@ -429,7 +433,7 @@ class _EmployeesState extends State<Employees> {
                                                         await FirebaseFirestore
                                                             .instance
                                                             .collection(
-                                                                'employees')
+                                                                '/employees')
                                                             .where('email',
                                                                 isEqualTo:
                                                                     emailController
@@ -461,7 +465,7 @@ class _EmployeesState extends State<Employees> {
                                                                       await FirebaseFirestore
                                                                           .instance
                                                                           .collection(
-                                                                              'employees')
+                                                                              '/employees')
                                                                           .doc(docs.docs[0]
                                                                               [
                                                                               'docid'])
@@ -472,7 +476,7 @@ class _EmployeesState extends State<Employees> {
                                                                       Navigator.of(
                                                                               context)
                                                                           .popUntil(
-                                                                              ModalRoute.withName('employees'));
+                                                                              ModalRoute.withName('/employees'));
                                                                     },
                                                                     child: Text(
                                                                         'Yes')),
@@ -521,18 +525,36 @@ class _EmployeesState extends State<Employees> {
                         ]);
                   }),
                 );
-              },
-            ),
-            GButton(
-              text: 'Inactive Employees',
-              icon: Icons.circle_outlined,
-              onPressed: () {
+
+                break;
+              }
+            case 2:
+              {
                 setState(() {
                   filter = 'inactive';
                 });
-              },
-            )
-          ]),
+                break;
+              }
+            default:
+          }
+        },
+        items: [
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.circle,
+                color: Colors.green,
+              ),
+              label: 'Active Employees'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.add), label: 'Add Employees'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.circle,
+                color: Colors.red,
+              ),
+              label: 'Inactive Employees'),
+        ],
+      ),
       body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('employees')

@@ -50,7 +50,10 @@ class _ClassPageState extends State<ClassPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
           centerTitle: true,
-          title: Text(widget.classEntry.title),
+          title: Text(
+            widget.classEntry.title,
+            maxLines: 3,
+          ),
           actions: [
             // ElevatedButton.icon(
             //     onPressed: () {
@@ -227,8 +230,7 @@ class _ClassPageState extends State<ClassPage> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => ViewAttendence(
-                                    ClassTitle: widget.classEntry.title,
-                                    ClassId: widget.classEntry.classid)));
+                                  classEntry: widget.classEntry,)));
                       },
                       child: ListTile(
                         leading: Icon(Icons.people),
@@ -401,8 +403,7 @@ class _ClassPageState extends State<ClassPage> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ViewAttendence(
-                            ClassTitle: widget.classEntry.title,
-                            ClassId: widget.classEntry.classid)));
+                            classEntry: widget.classEntry,)));
               })
         ],
       ),

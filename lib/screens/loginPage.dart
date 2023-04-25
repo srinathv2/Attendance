@@ -197,10 +197,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-// const users = const {
-//   'srinath@gmail.com': '12345',
-// };
-
 class LoginScreen extends StatefulWidget {
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -226,9 +222,9 @@ class _LoginScreenState extends State<LoginScreen> {
           if (snapshot.docs.isNotEmpty) {
             snapshot.docs.forEach((element) {
               if (element.exists && element['type'] == 'admin') {
-                Navigator.pushReplacementNamed(context, 'adminScreen');
+                Navigator.pushReplacementNamed(context, '/adminScreen');
               } else if (element.exists && element['type'] == 'faculty') {
-                Navigator.pushReplacementNamed(context, 'classes');
+                Navigator.pushReplacementNamed(context, '/classes');
               }
             });
           } else {
@@ -261,41 +257,53 @@ class _LoginScreenState extends State<LoginScreen> {
   // Future<String?> _signupUser(SignupData data) {
   @override
   Widget build(BuildContext context) {
-    return FlutterLogin(
-      hideForgotPasswordButton: false,
+    return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Icon(
+          Icons.code,
+          color: Colors.white,
+          size: 40,
+        ),
+        onPressed: (() {}),
+      ),
+      body: FlutterLogin(
+        hideForgotPasswordButton: false,
+        // title: 'Attendance',ß
+        logo: AssetImage('assets/images/svcolleges.png'),
+        onLogin: _authUser,
+        // onSignup: _signupUser,
 
-      title: 'Attendance',
-      logo: AssetImage('assets/images/svcolleges.png'),
-      onLogin: _authUser,
-      // onSignup: _signupUser,
+        // loginProviders: <LoginProvider>[
+        //   LoginProvider(
+        //     icon: FontAwesomeIcons.google,
+        //     label: 'Google',
+        //     callback: () async {
+        //       debugPrint('start google sign in');
+        //       await Future.delayed(loginTime);
+        //       debugPrint('stop google sign in');
+        //       return null;
+        //     },
+        //   ),
+        // ],
+        // onSubmitAnimationCompleted: () {
+        //   Navigator.of(context).pushReplacement(MaterialPageRoute(
+        //     builder: (context) => Home(),
+        //   ));
+        // },
 
-      // loginProviders: <LoginProvider>[
-      //   LoginProvider(
-      //     icon: FontAwesomeIcons.google,
-      //     label: 'Google',
-      //     callback: () async {
-      //       debugPrint('start google sign in');
-      //       await Future.delayed(loginTime);
-      //       debugPrint('stop google sign in');
-      //       return null;
-      //     },
-      //   ),
-      // ],
-      // onSubmitAnimationCompleted: () {
-      //   Navigator.of(context).pushReplacement(MaterialPageRoute(
-      //     builder: (context) => Home(),
-      //   ));
-      // },
-
-      onRecoverPassword: ((email) async {
-        try {
-          await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-        } on FirebaseAuthException catch (e) {
-          if (e.code == 'user-not-found') {
-            return 'No user found with this email.';
+        onRecoverPassword: ((email) async {
+          try {
+            await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+          } on FirebaseAuthException catch (e) {
+            if (e.code == 'user-not-found') {
+              return 'No user found with this email.';
+            }
           }
-        }
-      }),
+        }),
+      ),
     );
   }
 }

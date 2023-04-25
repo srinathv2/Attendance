@@ -16,6 +16,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  int currentIndex = 0;
   final _formKey = GlobalKey<FormState>();
   late String selectedItem;
   List<String> attendanceTypes = ['Fullday', 'Forenoon', 'Afternoon'];
@@ -130,112 +131,22 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Classes'),
+        title: const Text(
+          'Classes',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
         centerTitle: true,
       ),
-      bottomNavigationBar: GNav(
-          backgroundColor: Color.fromARGB(255, 36, 149, 242),
-          color: Colors.black,
-          tabs: [
-            GButton(
-              icon: Icons.password,
-              text: 'Change password',
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: ((context) {
-                      final formKey = GlobalKey<FormState>();
-                      var oldPasswordController = TextEditingController();
-                      var newPasswordController = TextEditingController();
-                      final passwordValidator = RegExp(
-                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
-                      return AlertDialog(
-                        scrollable: true,
-                        title: Text('Change password'),
-                        content: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Form(
-                              key: formKey,
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
-                              child: Column(
-                                children: [
-                                  TextFormField(
-                                    decoration: InputDecoration(
-                                      errorMaxLines: 5,
-                                      label: Text('Old Password'),
-                                    ),
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return 'Old Password is required';
-                                      } else if (!passwordValidator
-                                          .hasMatch(value)) {
-                                        return 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@\$!%*?&)';
-                                      }
-                                      return null;
-                                    },
-                                    controller: oldPasswordController,
-                                  ),
-                                  TextFormField(
-                                    decoration: InputDecoration(
-                                      errorMaxLines: 5,
-                                      label: Text('New Password'),
-                                    ),
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return 'New Password is required';
-                                      } else if (!passwordValidator
-                                          .hasMatch(value)) {
-                                        return 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@\$!%*?&)';
-                                      }
-                                      return null;
-                                    },
-                                    controller: newPasswordController,
-                                  ),
-                                ],
-                              )),
-                        ),
-                        actions: [
-                          TextButton(
-                              onPressed: () async {
-                                if (formKey.currentState!.validate()) {
-                                  formKey.currentState!.save();
-                                  await changePassword(
-                                      email: FirebaseAuth
-                                              .instance.currentUser!.email ??
-                                          '',
-                                      oldpassword: oldPasswordController.text,
-                                      newpassword: newPasswordController.text);
-                                  Navigator.of(context).pop();
-                                  formKey.currentState!.reset();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'Password changed successfully🎉')));
-                                }
-                                // await Future.delayed(Duration(seconds: 3));
-                                // signOut();
-                                // Navigator.pushReplacement(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //       builder: (context) => LoginScreen()),
-                                // );
-                                // Navigator.popUntil(
-                                //     context, ModalRoute.withName('/login'));
-                                // await FirebaseAuth.instance.signOut();
-                                // Navigator.of(context)
-                                //     .popUntil();
-                              },
-                              child: Text('submit'))
-                        ],
-                      );
-                    }));
-              },
-            ),
-            GButton(
-              icon: Icons.add,
-              text: 'Create Class',
-              onPressed: () {
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: currentIndex,
+        onTap: ((value) {
+          setState(() {
+            currentIndex = value;
+          });
+          switch (value) {
+            case 0:
+              {
                 showDialog(
                   barrierDismissible: false,
                   context: context,
@@ -252,7 +163,7 @@ class _HomeState extends State<Home> {
                               onPressed: (() {
                                 // Navigator.of(context).pop();
                                 Navigator.of(context)
-                                    .popUntil(ModalRoute.withName('classes'));
+                                    .popUntil(ModalRoute.withName('/classes'));
 
                                 showDialog(
                                     context: context,
@@ -264,15 +175,18 @@ class _HomeState extends State<Home> {
                                           padding: const EdgeInsets.all(8.0),
                                           child: Form(
                                             key: _formKey,
-                                            autovalidateMode: AutovalidateMode
-                                                .onUserInteraction,
+                                            autovalidateMode:
+                                                AutovalidateMode.always,
                                             child: Column(
                                               children: [
                                                 TextFormField(
                                                   validator: (value) {
                                                     if (value == null ||
                                                         value.isEmpty) {
-                                                      return 'Please enter some title';
+                                                      return 'Please enter Title';
+                                                    } else if (value.length >
+                                                        20) {
+                                                      return 'Too long,use description';
                                                     }
                                                     return null;
                                                   },
@@ -285,7 +199,7 @@ class _HomeState extends State<Home> {
                                                   validator: (value) {
                                                     if (value == null ||
                                                         value.isEmpty) {
-                                                      return 'Please enter some Category';
+                                                      return 'Please enter Category';
                                                     }
                                                     return null;
                                                   },
@@ -463,7 +377,7 @@ class _HomeState extends State<Home> {
                                                     this.tbs = [];
                                                     Navigator.of(context).pop();
                                                   });
-                                                }
+                                                } else {}
                                                 _formKey.currentState!.reset();
                                               })
                                         ],
@@ -474,27 +388,139 @@ class _HomeState extends State<Home> {
                         ]);
                   }),
                 );
-              },
-            ),
-            GButton(
-              icon: Icons.logout,
-              text: 'logout',
-              onPressed: () {
+
+                break;
+              }
+            case 1:
+              {
+                showDialog(
+                    context: context,
+                    builder: ((context) {
+                      final formKey = GlobalKey<FormState>();
+                      var oldPasswordController = TextEditingController();
+                      var newPasswordController = TextEditingController();
+                      final passwordValidator = RegExp(
+                          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+                      return AlertDialog(
+                        scrollable: true,
+                        title: Text('Change password'),
+                        content: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Form(
+                              key: formKey,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              child: Column(
+                                children: [
+                                  TextFormField(
+                                    decoration: InputDecoration(
+                                      errorMaxLines: 5,
+                                      label: Text('Old Password'),
+                                    ),
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Old Password is required';
+                                      } else if (!passwordValidator
+                                          .hasMatch(value)) {
+                                        return 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@\$!%*?&)';
+                                      }
+                                      return null;
+                                    },
+                                    controller: oldPasswordController,
+                                  ),
+                                  TextFormField(
+                                    decoration: InputDecoration(
+                                      errorMaxLines: 5,
+                                      label: Text('New Password'),
+                                    ),
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'New Password is required';
+                                      } else if (!passwordValidator
+                                          .hasMatch(value)) {
+                                        return 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@\$!%*?&)';
+                                      }
+                                      return null;
+                                    },
+                                    controller: newPasswordController,
+                                  ),
+                                ],
+                              )),
+                        ),
+                        actions: [
+                          TextButton(
+                              onPressed: () async {
+                                if (formKey.currentState!.validate()) {
+                                  formKey.currentState!.save();
+                                  await changePassword(
+                                      email: FirebaseAuth
+                                              .instance.currentUser!.email ??
+                                          '',
+                                      oldpassword: oldPasswordController.text,
+                                      newpassword: newPasswordController.text);
+                                  Navigator.of(context).pop();
+                                  formKey.currentState!.reset();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Password changed successfully🎉')));
+                                }
+                                // await Future.delayed(Duration(seconds: 3));
+                                // signOut();
+                                // Navigator.pushReplacement(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //       builder: (context) => LoginScreen()),
+                                // );
+                                // Navigator.popUntil(
+                                //     context, ModalRoute.withName('/login'));
+                                // await FirebaseAuth.instance.signOut();
+                                // Navigator.of(context)
+                                //     .popUntil();
+                              },
+                              child: Text('submit'))
+                        ],
+                      );
+                    }));
+
+                break;
+              }
+
+            case 2:
+              {
                 signOut();
                 if (mounted) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                      ((route) => false));
                 }
-              },
-            )
-          ]),
+                break;
+              }
+            default:
+          }
+        }),
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Create Class'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.password,
+              ),
+              label: 'Change password'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.logout,
+              ),
+              label: 'Logout'),
+        ],
+      ),
       body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('employees')
               .where('email',
-                  isEqualTo: FirebaseAuth.instance.currentUser!.email ?? '')
+                  isEqualTo: FirebaseAuth.instance.currentUser == null
+                      ? ''
+                      : FirebaseAuth.instance.currentUser!.email)
               .snapshots(),
           // stream: emptype == 'admin'
           //     ? FirebaseFirestore.instance.collection('classes').snapshots()

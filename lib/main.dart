@@ -12,12 +12,13 @@ void main() async {
   await Firebase.initializeApp();
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: LoginScreen(),
+    // home: LoginScreen(),
+    initialRoute: '/',
     routes: {
-      'login': (context) => LoginScreen(),
-      'classes': (context) => const Home(),
-      'adminScreen': (context) => AdminScreen(),
-      'employees': (context) => Employees()
+      '/': (context) => LoginScreen(),
+      '/classes': (context) => Home(),
+      '/adminScreen': (context) => AdminScreen(),
+      '/employees': (context) => Employees()
     },
   ));
 }
